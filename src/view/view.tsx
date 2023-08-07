@@ -55,6 +55,7 @@ export class MapView extends FileView {
     const root = createRoot(this.containerEl.children[1])
 
     let imgData = 'data:image/jpeg;base64,' + (await this.app.vault.adapter.read(this.map))
+    // let imgData = this.map
 
     root.render(
       <React.StrictMode>
