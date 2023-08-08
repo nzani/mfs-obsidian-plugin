@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # The Map File System: Obsidian Plugin
 
 Welcome to the Map File System: the file system built around maps! This project
@@ -20,7 +19,3 @@ To develop, you will need to have [Obsidian](https://obsidian.md/), [Node.js]
 - open this up in obsidian to create the test vault
 - add in a `plugins` folder to `.obsidian/`, and add a `mfs-obsidian` directory
     - copy `main.js` and `manifest.json` here when building
-=======
-# Obsidian Map File System Plugin
-
->>>>>>> 11572c1787305b1a0ea36dec01853335ef04ec59
