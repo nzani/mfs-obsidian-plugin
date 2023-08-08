@@ -6,3 +6,8 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.map-view {
+    background-color: #e9973f;
+    overflow: auto;
+}

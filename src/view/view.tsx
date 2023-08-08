@@ -35,12 +35,15 @@ export class MapView extends FileView {
     // function hexToBase64(str) {
     //   return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
     // }
+ 
+    // this.containerEl.toggleClass("map-view", true)
+    this.contentEl.toggleClass("map-view", true)
 
-    new Notice(this.map)
-    new Notice(vault.configDir)
+    // new Notice(this.map)
+    // new Notice(vault.configDir)
 
-    new Notice(vault.getResourcePath(file))
-    new Notice(vault.getRoot().path)
+    // new Notice(vault.getResourcePath(file))
+    // new Notice(vault.getRoot().path)
   }
 
   getViewType() {
