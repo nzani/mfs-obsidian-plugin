@@ -7,6 +7,20 @@ interface MFSSettings {
 	mySetting: string
 }
 
+// interfaces for map stuff
+interface MFSDoc {
+	name: string,
+	path: string,
+	mapPins?: Array<MapPin>,
+	filePins?: Array<string>
+}
+
+interface MapPin {
+	name: string,
+	directory: string,
+	path: string
+}
+
 const DEFAULT_SETTINGS: MFSSettings = {
 	mySetting: 'normal'
 }
@@ -42,10 +56,11 @@ export default class MFS extends Plugin {
 
 			menu.addItem((item) => 
 				item
-					.setTitle("My Item Title")
-					.setIcon("Check")
+					.setTitle("Generate MFS Document")
+					.setIcon("map")
 					.onClick(() => {
 						new Notice("You just got beaned")
+						new MFSDocGenModal(this.app).open()
 					})
 			)
 
@@ -71,7 +86,7 @@ export default class MFS extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open()
+				new MFSDocGenModal(this.app).open()
 			}
 		})
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -94,7 +109,7 @@ export default class MFS extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open()
+						new MFSDocGenModal(this.app).open()
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -129,14 +144,44 @@ export default class MFS extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class MFSDocGenModal extends Modal {
+	mapMetaData: MFSDoc = {name: "", path: ""}
+
 	constructor(app: App) {
 		super(app)
 	}
 
+	async onSubmit(mapMetaData: MFSDoc) {
+		let file = await this.app.vault.create(mapMetaData.name + '.mfs', JSON.stringify(mapMetaData))
+	}
+
 	onOpen() {
 		const {contentEl} = this
-		contentEl.setText('Woah!')
+
+		contentEl.createEl("h1", { text: "Create your .mfs file!" });
+
+		new Setting(contentEl)
+		.setName("Map Name")
+		.addText((text) =>
+			text.onChange((value) => {
+				this.mapMetaData.name = value
+			}));
+		new Setting(contentEl)
+		.setName("Map Path")
+		.addText((text) =>
+			text.onChange((value) => {
+				this.mapMetaData.path = value
+			}));
+
+		new Setting(contentEl)
+		.addButton((btn) =>
+			btn
+			.setButtonText("Submit")
+			.setCta()
+			.onClick(() => {
+				this.close();
+				this.onSubmit(this.mapMetaData)
+			}));
 	}
 
 	onClose() {

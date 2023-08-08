@@ -8,7 +8,8 @@ export const VIEW_TYPE_MAP = "map-view"
 
 export class MapView extends FileView {
 
-  map: string = ""
+  // TODO: change to proper interface (MFSDoc)
+  mapPath: string = ""
   name: string = "Unnamed Map"
   mapAbsPath: string = ""
 
@@ -24,13 +25,13 @@ export class MapView extends FileView {
     let data = JSON.parse(await vault.read(file))
 
     // TODO: do these need to be saved? will they be used anywhere else?
-    this.map = data["map"]
+    this.mapPath = data["path"]
     this.name = data["name"]
 
     // TODO: better way to find resource path of the map?
     let files = vault.getFiles()
     for(var i = 0; i < files.length; i++) {
-      if (files[i].path === this.map) {
+      if (files[i].path === this.mapPath) {
         this.mapAbsPath = vault.getResourcePath(files[i])
       }
     }
