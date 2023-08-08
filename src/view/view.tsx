@@ -2,7 +2,7 @@ import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystem
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { ReactView } from "./ReactView"
-import { createRoot } from "react-dom/client"
+import { Root, createRoot } from "react-dom/client"
 
 export const VIEW_TYPE_MAP = "map-view"
 
@@ -12,6 +12,7 @@ export class MapView extends FileView {
   mapPath: string = ""
   name: string = "Unnamed Map"
   mapAbsPath: string = ""
+  root: Root
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -40,16 +41,14 @@ export class MapView extends FileView {
     this.contentEl.toggleClass("map-view", true)
 
     // create React element after file loaded
-    const root = createRoot(this.containerEl.children[1])
-
-    root.render(
+    this.root.render(
       <React.StrictMode>
         <ReactView src={this.mapAbsPath}/>
       </React.StrictMode>
     )
 
   }
-
+  
   getViewType() {
     return VIEW_TYPE_MAP
   }
@@ -59,11 +58,11 @@ export class MapView extends FileView {
   }
 
   async onOpen() {
-    
-      
+    this.root = createRoot(this.containerEl.children[1])      
   }
 
   async onClose() {
-    ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
+    // ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
+    this.root.unmount()
   }
 }
