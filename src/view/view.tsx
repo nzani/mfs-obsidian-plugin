@@ -37,7 +37,14 @@ export class MapView extends FileView {
       }
     }
 
-    // obsidian-specific class action
+    // function hexToBase64(str) {
+    //   return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+    // }
+ 
+    // "content" element => for this instance
+    // "container" element => for the parent element of this instance
+
+    // this.containerEl.toggleClass("map-view", true)
     this.contentEl.toggleClass("map-view", true)
 
     // create React element after file loaded

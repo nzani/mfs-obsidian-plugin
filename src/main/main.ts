@@ -29,7 +29,10 @@ export default class MFS extends Plugin {
 	settings: MFSSettings
 
 	async onload() {
+
+		// load settings and add a settings tab so the user can configure various aspects of the plugin
 		await this.loadSettings()
+		this.addSettingTab(new MFSSettingTab(this.app, this))
 
 		this.registerView(
 			VIEW_TYPE_MAP,
