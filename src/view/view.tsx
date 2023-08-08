@@ -1,4 +1,4 @@
-import { FileView, WorkspaceLeaf, Notice, TFile, FileSystemAdapter } from "obsidian"
+import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystemAdapter } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { ReactView } from "./ReactView"
@@ -10,6 +10,7 @@ export class MapView extends FileView {
 
   map: string = ""
   name: string = "Unnamed Map"
+  mapAbsPath: string = ""
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -20,27 +21,29 @@ export class MapView extends FileView {
   async onLoadFile(file : TFile) {
 
     let vault = this.app.vault
-    
-    let fsa = new FileSystemAdapter()
-
     let data = JSON.parse(await vault.read(file))
 
+    // TODO: do these need to be saved? will they be used anywhere else?
     this.map = data["map"]
     this.name = data["name"]
 
-    let map = vault.getAbstractFileByPath(this.map)!.path
-
+    // TODO: better way to find resource path of the map?
     let files = vault.getFiles()
+    for(var i = 0; i < files.length; i++) {
+      if (files[i].path === this.map) {
+        this.mapAbsPath = vault.getResourcePath(files[i])
+      }
+    }
 
-    // function hexToBase64(str) {
-    //   return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
-    // }
+    // create React element after file loaded
+    const root = createRoot(this.containerEl.children[1])
 
-    new Notice(this.map)
-    new Notice(vault.configDir)
+    root.render(
+      <React.StrictMode>
+        <ReactView src={this.mapAbsPath}/>
+      </React.StrictMode>
+    )
 
-    new Notice(vault.getResourcePath(file))
-    new Notice(vault.getRoot().path)
   }
 
   getViewType() {
@@ -52,15 +55,7 @@ export class MapView extends FileView {
   }
 
   async onOpen() {
-    const root = createRoot(this.containerEl.children[1])
-
-    let imgData = 'data:image/jpeg;base64,' + (await this.app.vault.adapter.read(this.map))
-
-    root.render(
-      <React.StrictMode>
-        <ReactView file={imgData}/>
-      </React.StrictMode>
-    )
+    
       
   }
 
