@@ -51,6 +51,7 @@ export default class MFS extends Plugin {
 			})
 		)
 
+		// menu of MFS actions
 		this.addRibbonIcon("map", "Open MFS Menu", (event) => {
 			const menu = new Menu()
 
@@ -77,7 +78,7 @@ export default class MFS extends Plugin {
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class')
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
+		// TODO: add a # of mapPins and # of filePins item
 		const statusBarItemEl = this.addStatusBarItem()
 		statusBarItemEl.setText('Status Bar Text')
 
