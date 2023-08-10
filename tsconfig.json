@@ -20,6 +20,7 @@
       ]
   },
   "include": [
-    "**/*.ts"
-, "src/view/view.tsx"  ]
+    "**/*.ts", 
+    "view/view.tsx"  
+  ]
 }
