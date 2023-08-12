@@ -6,7 +6,6 @@ import { Root, createRoot } from "react-dom/client"
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 
 export const VIEW_TYPE_MAP = "map-view"
-export const TEST_IMAGE_NAME = "sample_map.png"
 
 export class MapView extends FileView {
 
@@ -38,9 +37,6 @@ export class MapView extends FileView {
       if (files[i].path === this.mapPath) {
         this.mapAbsPath = vault.getResourcePath(files[i])
       }
-      if (files[i].name == TEST_IMAGE_NAME) { // if test file is found in the vault, use it for the map
-        testimagepath = vault.getResourcePath(files[i])
-      }
     }
 
     // "content" element => for this instance
@@ -55,8 +51,8 @@ export class MapView extends FileView {
         <TransformWrapper>
           <TransformComponent>
             <img 
-              src={testimagepath}
-              alt="test"
+              src={this.mapAbsPath}
+              alt={this.name}
             />
           </TransformComponent>
         </TransformWrapper>
