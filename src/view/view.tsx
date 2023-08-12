@@ -2,11 +2,11 @@ import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystem
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { ReactView } from "./ReactView"
-import { createRoot } from "react-dom/client"
+import { Root, createRoot } from "react-dom/client"
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 
 export const VIEW_TYPE_MAP = "map-view"
-export const TEST_IMAGE_NAME = "omu1.jpg"
+export const TEST_IMAGE_NAME = "sample_map.png"
 
 export class MapView extends FileView {
 
@@ -43,10 +43,6 @@ export class MapView extends FileView {
       }
     }
 
-    // function hexToBase64(str) {
-    //   return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
-    // }
- 
     // "content" element => for this instance
     // "container" element => for the parent element of this instance
 
