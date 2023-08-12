@@ -2,15 +2,17 @@ import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystem
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { ReactView } from "./ReactView"
-import { createRoot } from "react-dom/client"
+import { Root, createRoot } from "react-dom/client"
 
 export const VIEW_TYPE_MAP = "map-view"
 
 export class MapView extends FileView {
 
-  map: string = ""
+  // TODO: change to proper interface (MFSDoc)
+  mapPath: string = ""
   name: string = "Unnamed Map"
   mapAbsPath: string = ""
+  root: Root
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -24,13 +26,13 @@ export class MapView extends FileView {
     let data = JSON.parse(await vault.read(file))
 
     // TODO: do these need to be saved? will they be used anywhere else?
-    this.map = data["map"]
+    this.mapPath = data["path"]
     this.name = data["name"]
 
     // TODO: better way to find resource path of the map?
     let files = vault.getFiles()
     for(var i = 0; i < files.length; i++) {
-      if (files[i].path === this.map) {
+      if (files[i].path === this.mapPath) {
         this.mapAbsPath = vault.getResourcePath(files[i])
       }
     }
@@ -39,16 +41,14 @@ export class MapView extends FileView {
     this.contentEl.toggleClass("map-view", true)
 
     // create React element after file loaded
-    const root = createRoot(this.containerEl.children[1])
-
-    root.render(
+    this.root.render(
       <React.StrictMode>
         <ReactView src={this.mapAbsPath}/>
       </React.StrictMode>
     )
 
   }
-
+  
   getViewType() {
     return VIEW_TYPE_MAP
   }
@@ -58,11 +58,11 @@ export class MapView extends FileView {
   }
 
   async onOpen() {
-    
-      
+    this.root = createRoot(this.containerEl.children[1])      
   }
 
   async onClose() {
-    ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
+    // ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
+    this.root.unmount()
   }
 }
