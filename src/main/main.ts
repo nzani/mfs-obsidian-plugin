@@ -29,7 +29,10 @@ export default class MFS extends Plugin {
 	settings: MFSSettings
 
 	async onload() {
+
+		// load settings and add a settings tab so the user can configure various aspects of the plugin
 		await this.loadSettings()
+		this.addSettingTab(new MFSSettingTab(this.app, this))
 
 		this.registerView(
 			VIEW_TYPE_MAP,
@@ -38,6 +41,7 @@ export default class MFS extends Plugin {
 
 		this.registerExtensions(["mfs"], VIEW_TYPE_MAP)
 
+		// menu event for seeing path of a file.. mostly for testing
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file) => {
 				menu.addItem((item) => {
@@ -55,6 +59,7 @@ export default class MFS extends Plugin {
 		this.addRibbonIcon("map", "Open MFS Menu", (event) => {
 			const menu = new Menu()
 
+			// menu item for generating .mfs doc
 			menu.addItem((item) => 
 				item
 					.setTitle("Generate MFS Document")
@@ -68,56 +73,9 @@ export default class MFS extends Plugin {
 			menu.showAtMouseEvent(event)
 		})
 
-		// all below is default:
-
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!')
-		})
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class')
-
 		// TODO: add a # of mapPins and # of filePins item
 		const statusBarItemEl = this.addStatusBarItem()
 		statusBarItemEl.setText('Status Bar Text')
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new MFSDocGenModal(this.app).open()
-			}
-		})
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection())
-				editor.replaceSelection('Sample Editor Command')
-			}
-		})
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new MFSDocGenModal(this.app).open()
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true
-				}
-			}
-		})
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new MFSSettingTab(this.app, this))
@@ -145,6 +103,8 @@ export default class MFS extends Plugin {
 	}
 }
 
+// if these classes get too large, bring to another file
+// Modal for adding .mfs document
 class MFSDocGenModal extends Modal {
 	mapMetaData: MFSDoc = {name: "", path: ""}
 
@@ -152,6 +112,7 @@ class MFSDocGenModal extends Modal {
 		super(app)
 	}
 
+	// creates a doc when the user clicks Submit button
 	async onSubmit(mapMetaData: MFSDoc) {
 		let file = await this.app.vault.create(mapMetaData.name + '.mfs', JSON.stringify(mapMetaData))
 	}
@@ -167,6 +128,7 @@ class MFSDocGenModal extends Modal {
 			text.onChange((value) => {
 				this.mapMetaData.name = value
 			}));
+
 		new Setting(contentEl)
 		.setName("Map Path")
 		.addText((text) =>
@@ -191,6 +153,7 @@ class MFSDocGenModal extends Modal {
 	}
 }
 
+// settings tab for the plugin
 class MFSSettingTab extends PluginSettingTab {
 	plugin: MFS
 
