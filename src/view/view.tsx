@@ -1,7 +1,6 @@
 import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystemAdapter } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { ReactView } from "./ReactView"
 import { Root, createRoot } from "react-dom/client"
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 
@@ -39,30 +38,13 @@ export class MapView extends FileView {
       }
     }
 
-    // "content" element => for this instance
-    // "container" element => for the parent element of this instance
-
-    // this.containerEl.toggleClass("map-view", true)
-    this.contentEl.toggleClass("map-view", true)
-
     // create React element after file loaded
     this.root.render(
       <React.StrictMode>
-        <TransformWrapper>
-          <TransformComponent>
-            <img 
-              src={this.mapAbsPath}
-              alt={this.name}
-            />
-          </TransformComponent>
-        </TransformWrapper>
+        <MapInteractiveView path={this.mapAbsPath} name={this.name} />
       </React.StrictMode>
     )
 
-  }
-
-  async loadImage(file: TFile) {
-    const fragment = this
   }
 
   getViewType() {
@@ -78,7 +60,17 @@ export class MapView extends FileView {
   }
 
   async onClose() {
-    // ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
+    ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
     this.root.unmount()
   }
+}
+
+const MapInteractiveView = (props: any) => {
+  return (
+    <TransformWrapper centerOnInit>
+      <TransformComponent wrapperStyle={{width: '100%', height: '100%'}}>
+        <img src={props.path} alt={props.name}/>
+      </TransformComponent>
+    </TransformWrapper>
+  )
 }
