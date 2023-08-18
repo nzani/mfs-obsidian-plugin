@@ -1,24 +1,11 @@
-import { App, Menu, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian'
+import { App, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { MapView, VIEW_TYPE_MAP } from 'src/view/view'
+import { MFSDoc } from "src/main/intf"
 
 // Remember to rename these classes and interfaces!
 
 interface MFSSettings {
 	mySetting: string
-}
-
-// interfaces for map stuff
-interface MFSDoc {
-	name: string,
-	path: string,
-	mapPins?: Array<MapPin>,
-	filePins?: Array<string>
-}
-
-interface MapPin {
-	name: string,
-	directory: string,
-	path: string
 }
 
 const DEFAULT_SETTINGS: MFSSettings = {
@@ -70,6 +57,28 @@ export default class MFS extends Plugin {
 					})
 			)
 
+			menu.addItem((item) => 
+				item
+					.setTitle("Place Pin")
+					.setIcon("pin")
+					.onClick(() => {
+						let mapView = this.app.workspace.getActiveViewOfType(MapView)
+						if (mapView == null) {
+							new Notice("You need to be looking at a map to add a pin!")
+						} else {
+							mapView?.contentEl.onClickEvent((evt: MouseEvent) => {
+								mapView?.displayPin({x: evt.clientX, y: evt.clientY})
+								mapView?.rememberPin({ name: "",
+													   path: "",
+													   coord: {x: evt.clientX, y: evt.clientY}})
+								new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
+							},
+							{once : true})
+						}
+					})
+				
+			)
+
 			menu.showAtMouseEvent(event)
 		})
 
@@ -83,14 +92,14 @@ export default class MFS extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt)
+			// console.log(evt.clientX, evt.clientY, evt)
 		})
-
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000))
 	}
 
 	onunload() {
+		close()
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_MAP)
 	}
 
@@ -106,7 +115,7 @@ export default class MFS extends Plugin {
 // if these classes get too large, bring to another file
 // Modal for adding .mfs document
 class MFSDocGenModal extends Modal {
-	mapMetaData: MFSDoc = {name: "", path: ""}
+	mapMetaData: MFSDoc = {name: "", path: "", mapPins: []}
 
 	constructor(app: App) {
 		super(app)

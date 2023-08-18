@@ -11,3 +11,7 @@ If your plugin does not need CSS, delete this file.
     background-color: #e9973f;
     overflow: auto;
 }
+
+.pin {
+    background-color: #aa0def;
+}
