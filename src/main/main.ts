@@ -1,6 +1,6 @@
-import { App, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian'
+import { App, HoverPopover, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, ToggleComponent } from 'obsidian'
 import { MapView, VIEW_TYPE_MAP } from 'src/view/view'
-import { MFSDoc } from "src/main/intf"
+import { MFSDoc, MapPin } from "src/main/intf"
 
 // Remember to rename these classes and interfaces!
 
@@ -66,14 +66,7 @@ export default class MFS extends Plugin {
 						if (mapView == null) {
 							new Notice("You need to be looking at a map to add a pin!")
 						} else {
-							mapView?.contentEl.onClickEvent((evt: MouseEvent) => {
-								mapView?.displayPin({x: evt.clientX, y: evt.clientY})
-								mapView?.rememberPin({ name: "",
-													   path: "",
-													   coord: {x: evt.clientX, y: evt.clientY}})
-								new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
-							},
-							{once : true})
+							new MFSPinGenModal(this.app, mapView).open()
 						}
 					})
 				
@@ -122,8 +115,9 @@ class MFSDocGenModal extends Modal {
 	}
 
 	// creates a doc when the user clicks Submit button
-	async onSubmit(mapMetaData: MFSDoc) {
-		let file = await this.app.vault.create(mapMetaData.name + '.mfs', JSON.stringify(mapMetaData))
+	async onSubmit() {
+		await this.app.vault.create(this.mapMetaData.name + '.mfs', 
+								  	JSON.stringify(this.mapMetaData))
 	}
 
 	onOpen() {
@@ -152,7 +146,7 @@ class MFSDocGenModal extends Modal {
 			.setCta()
 			.onClick(() => {
 				this.close();
-				this.onSubmit(this.mapMetaData)
+				this.onSubmit()
 			}));
 	}
 
@@ -160,6 +154,87 @@ class MFSDocGenModal extends Modal {
 		const {contentEl} = this
 		contentEl.empty()
 	}
+}
+
+class MFSPinGenModal extends Modal {
+	mapView: MapView
+	pinMetaData: MapPin = {name: "", path: "", coord: {x: 0, y: 0}}
+	isDirectory: boolean
+
+	constructor(app: App, mapView: MapView) {
+		super(app)
+		this.mapView = mapView
+	}
+
+	onSubmit() {
+		if (this.isDirectory) {
+			// create the new folder name
+			let currentFileParent = this.app.workspace.getActiveFile()?.parent?.name
+			let newFolderName = currentFileParent + '/' + this.pinMetaData.name
+			this.app.vault.createFolder(newFolderName)
+			
+			// create the associated .mfs doc
+			// TODO: add a blank map file 
+			this.app.vault.create(newFolderName + '/' + this.pinMetaData.name + '.mfs', 
+								  JSON.stringify({name: this.pinMetaData.name, 
+												  path: this.pinMetaData.path,
+												  mapPins: []}))
+
+		} else {
+			// if not a new map, just create a new map
+			this.app.vault.create(this.pinMetaData.name + '.md', "")
+		}
+
+		new Notice("Click on your map to place your new pin")
+
+		this.mapView.contentEl.onClickEvent((evt: MouseEvent) => {
+			this.mapView.displayPin({x: evt.clientX, y: evt.clientY})
+			this.mapView.rememberPin({ name: "",
+									   path: "",
+									   coord: {x: evt.clientX, y: evt.clientY}})
+			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
+		},
+		{once : true})
+	}
+
+	onOpen() {
+		const {contentEl} = this
+
+		contentEl.createEl("h1", { text: "Add a pin to your map" });
+
+		new Setting(contentEl)
+		.setName("Pin Name")
+		.addText((text) =>
+			text.onChange((value) => {
+				this.pinMetaData.name = value
+			}))
+
+		new Setting(contentEl)
+		.setName("Pin Path")
+		.addText((text) => 
+			text.onChange((value) => {
+				this.pinMetaData.path = value
+			}))
+
+		new Setting(contentEl)
+		.setName("New Map?")
+		.addToggle((tc: ToggleComponent) => {
+			tc.onChange((enabled:boolean) => {
+				this.isDirectory = enabled
+			})
+		})
+
+		new Setting(contentEl)
+		.addButton((btn) =>
+			btn
+			.setButtonText("Submit")
+			.setCta()
+			.onClick(() => {
+				this.close();
+				this.onSubmit()
+			}));
+	}
+
 }
 
 // settings tab for the plugin

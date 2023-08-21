@@ -52,16 +52,15 @@ export class MapView extends FileView {
       </React.StrictMode>
     )
 
-    // // in theory, should display all the pins...
-    // for (i=0; i < this.mfsDoc.mapPins.length; i++){
-    //   this.displayPin(this.mfsDoc.mapPins[i].coord)
-    // }
+    // in theory, should display all the pins...
+    for (i=0; i < this.mfsDoc.mapPins.length; i++){
+      this.displayPin(this.mfsDoc.mapPins[i].coord)
+    }
 
   }
 
   // TODO: need to set style elements somewhere else
   // TODO: turn into React component or otherwise
-  // TODO: tie pin placement to list in .mfs file
   // TODO: create Modal to name pin
   // add the pin to the current map display
   displayPin(coord: MapCoordinate) {
