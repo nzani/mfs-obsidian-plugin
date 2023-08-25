@@ -53,7 +53,7 @@ export class MapView extends FileView {
     )
 
     // in theory, should display all the pins...
-    for (i=0; i < this.mfsDoc.mapPins.length; i++){
+    for (var i = 0; i < this.mfsDoc.mapPins.length; i++){
       this.displayPin(this.mfsDoc.mapPins[i].coord)
     }
 
@@ -79,7 +79,7 @@ export class MapView extends FileView {
     button.buttonEl.style.color = "#ffffff"
     button.buttonEl.style.accentColor = "#ffffff"
     console.log("Created a pin")
-    console.log(button.buttonEl.style.width, button.buttonEl.style.height)
+    console.log(coord.x, coord.y)
     button.setIcon('pin')
     button.setClass("pin")
   }
@@ -115,6 +115,8 @@ export class MapView extends FileView {
 
   async onOpen() {
     this.root = createRoot(this.containerEl.children[1])      
+
+    
   }
 
   async onClose() {

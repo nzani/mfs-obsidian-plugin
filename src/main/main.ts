@@ -114,7 +114,7 @@ class MFSDocGenModal extends Modal {
 		super(app)
 	}
 
-	// creates a doc when the user clicks Submit button
+	// creates a doc when the user clicks submit button
 	async onSubmit() {
 		await this.app.vault.create(this.mapMetaData.name + '.mfs', 
 								  	JSON.stringify(this.mapMetaData))
@@ -125,6 +125,7 @@ class MFSDocGenModal extends Modal {
 
 		contentEl.createEl("h1", { text: "Create your .mfs file!" });
 
+		// map name entry
 		new Setting(contentEl)
 		.setName("Map Name")
 		.addText((text) =>
@@ -132,6 +133,7 @@ class MFSDocGenModal extends Modal {
 				this.mapMetaData.name = value
 			}));
 
+		// map image path entry
 		new Setting(contentEl)
 		.setName("Map Path")
 		.addText((text) =>
@@ -139,6 +141,7 @@ class MFSDocGenModal extends Modal {
 				this.mapMetaData.path = value
 			}));
 
+		// submit button + action (see onSubmit)
 		new Setting(contentEl)
 		.addButton((btn) =>
 			btn
@@ -156,6 +159,7 @@ class MFSDocGenModal extends Modal {
 	}
 }
 
+// Modal for adding a new pin to the MapView
 class MFSPinGenModal extends Modal {
 	mapView: MapView
 	pinMetaData: MapPin = {name: "", path: "", coord: {x: 0, y: 0}}
@@ -179,7 +183,10 @@ class MFSPinGenModal extends Modal {
 								  JSON.stringify({name: this.pinMetaData.name, 
 												  path: this.pinMetaData.path,
 												  mapPins: []}))
-
+									
+			// use @n8atnite hack here to copy assets/sample_map.png 
+			// this.app.vault.copy()						
+			
 		} else {
 			// if not a new map, just create a new map
 			this.app.vault.create(this.pinMetaData.name + '.md', "")
@@ -187,14 +194,17 @@ class MFSPinGenModal extends Modal {
 
 		new Notice("Click on your map to place your new pin")
 
+		// creates a new event that triggers once when the map is clicked
 		this.mapView.contentEl.onClickEvent((evt: MouseEvent) => {
+			// dsiplays the pin in the MapView
 			this.mapView.displayPin({x: evt.clientX, y: evt.clientY})
+			
+			// records the pin in the MapView
 			this.mapView.rememberPin({ name: "",
 									   path: "",
 									   coord: {x: evt.clientX, y: evt.clientY}})
 			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
-		},
-		{once : true})
+		}, {once : true})
 	}
 
 	onOpen() {
@@ -202,6 +212,7 @@ class MFSPinGenModal extends Modal {
 
 		contentEl.createEl("h1", { text: "Add a pin to your map" });
 
+		// entry for pin name
 		new Setting(contentEl)
 		.setName("Pin Name")
 		.addText((text) =>
@@ -209,6 +220,7 @@ class MFSPinGenModal extends Modal {
 				this.pinMetaData.name = value
 			}))
 
+		// entry for pin data path (file if just regular pin, map path if map)
 		new Setting(contentEl)
 		.setName("Pin Path")
 		.addText((text) => 
@@ -216,6 +228,7 @@ class MFSPinGenModal extends Modal {
 				this.pinMetaData.path = value
 			}))
 
+		// toggle for whether or not this will be a new map
 		new Setting(contentEl)
 		.setName("New Map?")
 		.addToggle((tc: ToggleComponent) => {
@@ -224,6 +237,7 @@ class MFSPinGenModal extends Modal {
 			})
 		})
 
+		// submit button + actions to take when submitted
 		new Setting(contentEl)
 		.addButton((btn) =>
 			btn
