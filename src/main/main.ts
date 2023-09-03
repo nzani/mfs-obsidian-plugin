@@ -196,13 +196,15 @@ class MFSPinGenModal extends Modal {
 
 		// creates a new event that triggers once when the map is clicked
 		this.mapView.contentEl.onClickEvent((evt: MouseEvent) => {
+			let pin = {name: this.pinMetaData.name, 
+					   path: this.pinMetaData.path,
+					   coord: {x: evt.clientX, y: evt.clientY}}
+
 			// dsiplays the pin in the MapView
-			this.mapView.displayPin({x: evt.clientX, y: evt.clientY})
+			this.mapView.displayPin(pin)
 			
 			// records the pin in the MapView
-			this.mapView.rememberPin({ name: "",
-									   path: "",
-									   coord: {x: evt.clientX, y: evt.clientY}})
+			this.mapView.rememberPin(pin)
 			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
 		}, {once : true})
 	}

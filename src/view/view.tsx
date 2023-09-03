@@ -1,7 +1,7 @@
 import { FileView, WorkspaceLeaf, TFile, ButtonComponent } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { ReactView } from "./ReactView"
+import { MFSComponent, ReactView } from "./ReactView"
 import { Root, createRoot } from "react-dom/client"
 import { MFSDoc, MapCoordinate, MapPin } from "src/main/intf"
 
@@ -48,13 +48,13 @@ export class MapView extends FileView {
     // create React element after file loaded
     this.root.render(
       <React.StrictMode>
-        <ReactView mapAbsPath={mapAbsPath} mfsDoc={this.mfsDoc} />
+        <MFSComponent props={} mapAbsPath={mapAbsPath} mfsDoc={this.mfsDoc}/>
       </React.StrictMode>
     )
 
     // in theory, should display all the pins...
     for (var i = 0; i < this.mfsDoc.mapPins.length; i++){
-      this.displayPin(this.mfsDoc.mapPins[i].coord)
+      this.displayPin(this.mfsDoc.mapPins[i])
     }
 
   }
@@ -63,25 +63,25 @@ export class MapView extends FileView {
   // TODO: turn into React component or otherwise
   // TODO: create Modal to name pin
   // add the pin to the current map display
-  displayPin(coord: MapCoordinate) {
-    let buttonContainer = this.contentEl.createDiv()
-    let button = new ButtonComponent(buttonContainer)
-    let containerRect = this.containerEl.getBoundingClientRect()
+  displayPin(pin: MapPin) {
+    // let buttonContainer = this.contentEl.createDiv()
+    // let button = new ButtonComponent(buttonContainer)
+    // let containerRect = this.containerEl.getBoundingClientRect()
 
-    // style for buttonContainer
-    buttonContainer.style.position = "absolute"
-    buttonContainer.style.left = coord.x - Number(containerRect.left) - Number(button.buttonEl.style.width)/2 + "px"
-    buttonContainer.style.top = coord.y - Number(containerRect.top) - Number(button.buttonEl.style.height)/2 + "px"
-    buttonContainer.style.background = "transparent"
+    // // style for buttonContainer
+    // buttonContainer.style.position = "absolute"
+    // buttonContainer.style.left = coord.x - Number(containerRect.left) - Number(button.buttonEl.style.width)/2 + "px"
+    // buttonContainer.style.top = coord.y - Number(containerRect.top) - Number(button.buttonEl.style.height)/2 + "px"
+    // buttonContainer.style.background = "transparent"
 
-    // style for button
-    // button.buttonEl.style.background = "transparent"
-    button.buttonEl.style.color = "#ffffff"
-    button.buttonEl.style.accentColor = "#ffffff"
-    console.log("Created a pin")
-    console.log(coord.x, coord.y)
-    button.setIcon('pin')
-    button.setClass("pin")
+    // // style for button
+    // // button.buttonEl.style.background = "transparent"
+    // button.buttonEl.style.color = "#ffffff"
+    // button.buttonEl.style.accentColor = "#ffffff"
+    // console.log("Created a pin")
+    // console.log(coord.x, coord.y)
+    // button.setIcon('pin')
+    // button.setClass("pin")
   }
 
   getViewType() {
@@ -115,8 +115,6 @@ export class MapView extends FileView {
 
   async onOpen() {
     this.root = createRoot(this.containerEl.children[1])      
-
-    
   }
 
   async onClose() {
@@ -124,3 +122,4 @@ export class MapView extends FileView {
     this.root.unmount()
   }
 }
+
