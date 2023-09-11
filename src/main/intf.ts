@@ -7,13 +7,15 @@ export interface MapCoordinate {
 }
 
 export interface MapPin {
+	id: number
 	name: string,
 	path: string,
-	coord: MapCoordinate
+	coord: MapCoordinate,
+	content: MapViewProps | null
 }
 
-export interface MFSDoc {
+export interface MapViewProps {
 	name: string,
 	path: string,
-	mapPins: Array<MapPin>,
+	pins: MapPin[]
 }

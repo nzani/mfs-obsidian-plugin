@@ -1,106 +1,46 @@
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
+import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch"
 import * as React from "react";
 import { useState } from "react";
 import './style.css'
-import { MFSDoc, MapPin } from "src/main/intf";
+import { MapViewProps, MapPin } from "src/main/intf";
 
-// make into a class?
-// export const ReactView = (props: any) => {
-//   const [pins, setPins] = useState(new Array<MapPin>)
+// displays map using zoom-pan-pinch interactive view
+// adds react hooks to modify state
+const MapComponent = (mapProps: MapViewProps) => {
+  const [pins, setPins] = useState(mapProps.pins);
+  const [name, setName] = useState(mapProps.name);
+  const [path, setPath] = useState(mapProps.path); 
 
-//   async function addPin(pin: MapPin) {
-//     setPins([...pins, pin])
-//   }
+  const addPin = async (pin: MapPin) => {setPins([...pins, pin])}
+  const removePin = async (pin: MapPin) => {setPins(pins.filter(p => p.id !== pin.id))}
 
-//   function renderPins(){
-//     // if no pins return empty
-//     if (!pins) return null
-
-//     // else build pin list
-//     let result: React.ReactElement[] = []
-//     pins.forEach(pin => {
-//       result.push(
-//         <MapPinElement pin={pin}/>
-//       )
-//     })
-//     return result
-//   }
-  
-  
-//   return (
-//   <TransformWrapper>
-//     <TransformComponent>
-//       <div id="map-image-container">
-//         <img 
-//           id="map-image"
-//           src={props.mapAbsPath}
-//           alt={props.mfsDoc.name}
-//         />
-//         {renderPins()}
-//       </div>
-//     </TransformComponent>
-//   </TransformWrapper>
-//   )
-// }
-
-function MapPinElement(props: any, pin: MapPin) {
-  return <div className="pin" style={{
-    top: pin.coord.y,
-    left: pin.coord.x
-  }}></div>
+  return (
+    <TransformWrapper>
+      <TransformComponent>
+        <div id="map-image-container">
+          <img 
+            id="map-image"
+            src={path}
+            alt={name}
+          />
+          <KeepScale>
+            {PinListView(pins)}
+          </KeepScale>
+        </div>
+      </TransformComponent>
+    </TransformWrapper>
+  )
 }
 
-export class MFSComponent extends React.Component {
-  // make all the functionality of the component 
-  // add pins to pinlist
-  // display pins
-  // call button press functions
-  // etc. 
-  doc: MFSDoc
-  mapAbsPath: string
-
-  constructor(props:any, 
-              mapAbsPath: string,
-              doc: MFSDoc) 
-  {
-    super(props)
-    this.doc = doc
-    this.mapAbsPath = mapAbsPath
-    this.renderPins = this.renderPins.bind(this)
-  }
-
-  addPin(pin: MapPin) {
-    this.doc.mapPins = [...this.doc.mapPins, pin]
-  }
-
-  renderPins() {
-    // if no pins return empty
-    if (!this.doc.mapPins) return null
-
-    // else build pin list
-    let result: React.ReactElement[] = []
-    this.doc.mapPins.forEach(pin => {
-      result.push(
-        <MapPinElement pin={pin}/>
-      )
-    })
-    return result
-  }
-
-  render() {
-    return(
-      <TransformWrapper>
-        <TransformComponent>
-          <div id="map-image-container">
-            <img 
-              id="map-image"
-              src={this.mapAbsPath}
-              alt={this.doc.name}
-            />
-            {this.renderPins()}
-          </div>
-        </TransformComponent>
-      </TransformWrapper>
-    )
-  }
+// converts array of MapPin objects into a React Fragment containing a div for each pin
+const PinListView = (pins: MapPin[]) => {
+  return (
+    <>
+      {pins.map((pin: MapPin, idx: number) => {
+          return (<div className="pin" key={idx} style={{top: pin.coord.y, left: pin.coord.x}}/>)
+        })}
+    </>
+  )
 }
+
+export default MapComponent;
