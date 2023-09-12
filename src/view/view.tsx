@@ -1,7 +1,7 @@
 import { FileView, WorkspaceLeaf, TFile, ButtonComponent } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { MFSComponent, ReactView } from "./ReactView"
+import { MFSComponent } from "./ReactView"
 import { Root, createRoot } from "react-dom/client"
 import { MFSDoc, MapCoordinate, MapPin } from "src/main/intf"
 
@@ -10,7 +10,7 @@ export const VIEW_TYPE_MAP = "map-view"
 export class MapView extends FileView {
 
   // TODO: change to proper interface (MFSDoc)
-  mfsDoc: MFSDoc = {path: "", name: "", mapPins: []}
+  mfsDoc: MFSDoc = {path: "", name: "", absPath: "", mapPins: []}
   root: Root
 
   constructor(leaf: WorkspaceLeaf) {
@@ -21,19 +21,18 @@ export class MapView extends FileView {
 
   async onLoadFile(file : TFile) {
 
+    // parse the file as a JSON
     let vault = this.app.vault
     let data = JSON.parse(await vault.read(file))
 
     // TODO: do these need to be saved? will they be used anywhere else?
     this.mfsDoc = data
 
-    let mapAbsPath = ""
-
     // TODO: better way to find resource path of the map?
     let files = vault.getFiles()
     for(var i = 0; i < files.length; i++) {
       if (files[i].path === this.mfsDoc.path) {
-        mapAbsPath = vault.getResourcePath(files[i])
+        this.mfsDoc.absPath = vault.getResourcePath(files[i])
         break
       }
     }
@@ -48,7 +47,7 @@ export class MapView extends FileView {
     // create React element after file loaded
     this.root.render(
       <React.StrictMode>
-        <MFSComponent props={} mapAbsPath={mapAbsPath} mfsDoc={this.mfsDoc}/>
+        <MFSComponent doc={this.mfsDoc}></MFSComponent>
       </React.StrictMode>
     )
 
@@ -61,7 +60,6 @@ export class MapView extends FileView {
 
   // TODO: need to set style elements somewhere else
   // TODO: turn into React component or otherwise
-  // TODO: create Modal to name pin
   // add the pin to the current map display
   displayPin(pin: MapPin) {
     // let buttonContainer = this.contentEl.createDiv()

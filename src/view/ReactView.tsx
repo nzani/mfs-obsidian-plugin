@@ -4,7 +4,7 @@ import { useState } from "react";
 import './style.css'
 import { MFSDoc, MapPin } from "src/main/intf";
 
-// make into a class?
+// cannot make into a class 
 // export const ReactView = (props: any) => {
 //   const [pins, setPins] = useState(new Array<MapPin>)
 
@@ -44,38 +44,50 @@ import { MFSDoc, MapPin } from "src/main/intf";
 // }
 
 function MapPinElement(props: any, pin: MapPin) {
-  return <div className="pin" style={{
+  return <div key={pin.name} className="pin" style={{
     top: pin.coord.y,
     left: pin.coord.x
   }}></div>
 }
 
-export class MFSComponent extends React.Component {
+type MFSCompProps = {
+  doc: MFSDoc
+}
+
+type MFSCompState = {
+  numPins: number
+}
+
+export class MFSComponent extends React.Component<MFSCompProps, MFSCompState> {
   // make all the functionality of the component 
   // add pins to pinlist
   // display pins
   // call button press functions
   // etc. 
-  doc: MFSDoc
-  mapAbsPath: string
 
-  constructor(props:any, 
-              mapAbsPath: string,
-              doc: MFSDoc) 
-  {
+  doc:MFSDoc
+
+  constructor (props:MFSCompProps){
     super(props)
-    this.doc = doc
-    this.mapAbsPath = mapAbsPath
-    this.renderPins = this.renderPins.bind(this)
+    this.doc = props.doc
   }
 
+  // use an effect to let the state be set by external action
+
+
+  // add a pin to the map
   addPin(pin: MapPin) {
     this.doc.mapPins = [...this.doc.mapPins, pin]
+    this.setState((state) => ({
+      numPins: state.numPins + 1,
+    }))
   }
 
   renderPins() {
     // if no pins return empty
     if (!this.doc.mapPins) return null
+
+    console.log("Rendering pins!")
 
     // else build pin list
     let result: React.ReactElement[] = []
@@ -88,19 +100,17 @@ export class MFSComponent extends React.Component {
   }
 
   render() {
-    return(
-      <TransformWrapper>
+    return <TransformWrapper>
         <TransformComponent>
           <div id="map-image-container">
             <img 
               id="map-image"
-              src={this.mapAbsPath}
+              src={this.doc.absPath}
               alt={this.doc.name}
             />
-            {this.renderPins()}
+            {/* {this.renderPins()} */}
           </div>
         </TransformComponent>
       </TransformWrapper>
-    )
   }
 }

@@ -108,7 +108,7 @@ export default class MFS extends Plugin {
 // if these classes get too large, bring to another file
 // Modal for adding .mfs document
 class MFSDocGenModal extends Modal {
-	mapMetaData: MFSDoc = {name: "", path: "", mapPins: []}
+	mapMetaData: MFSDoc = {name: "", path: "", absPath: "", mapPins: []}
 
 	constructor(app: App) {
 		super(app)

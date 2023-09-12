@@ -15,5 +15,6 @@ export interface MapPin {
 export interface MFSDoc {
 	name: string,
 	path: string,
+	absPath: string,
 	mapPins: Array<MapPin>,
 }
