@@ -1,17 +1,17 @@
-import { arrayBufferToBase64, FileView, WorkspaceLeaf, Notice, TFile, FileSystemAdapter } from "obsidian"
+import { FileView, WorkspaceLeaf, TFile, ButtonComponent } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { Root, createRoot } from "react-dom/client"
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
+import { MapViewProps, MapPinProps } from "src/main/intf"
+import MapComponent from "src/view/ReactView"
+import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch"
 
 export const VIEW_TYPE_MAP = "map-view"
 
 export class MapView extends FileView {
 
   // TODO: change to proper interface (MFSDoc)
-  mapPath: string = ""
-  name: string = "Unnamed Map"
-  mapAbsPath: string = ""
+  mapFileData: MapViewProps = {path: "", name: "", pins: []}
   root: Root
 
   constructor(leaf: WorkspaceLeaf) {
@@ -26,25 +26,24 @@ export class MapView extends FileView {
     let data = JSON.parse(await vault.read(file))
 
     // TODO: do these need to be saved? will they be used anywhere else?
-    this.mapPath = data["path"]
-    this.name = data["name"]
+    this.mapFileData = data
+    let mapAbsPath = ""
 
     // TODO: better way to find resource path of the map?
     let files = vault.getFiles()
-    let testimagepath = ""
     for(var i = 0; i < files.length; i++) {
-      if (files[i].path === this.mapPath) {
-        this.mapAbsPath = vault.getResourcePath(files[i])
+      if (files[i].path === this.mapFileData.path) {
+        mapAbsPath = vault.getResourcePath(files[i])
+        break
       }
     }
 
     // create React element after file loaded
     this.root.render(
       <React.StrictMode>
-        <MapInteractiveView path={this.mapAbsPath} name={this.name} />
+        <MapComponent name={this.mapFileData.name} path={mapAbsPath} pins={this.mapFileData.pins}/>
       </React.StrictMode>
     )
-
   }
 
   getViewType() {
@@ -53,6 +52,27 @@ export class MapView extends FileView {
 
   getDisplayText() {
     return "Map View"
+  }
+
+  // add the pin to the list of pins in the .mfs doc
+  async savePin(pin: MapPinProps) {
+    // get the current vault and data
+    let vault = this.app.vault
+    let data = JSON.parse(await vault.read(this.file))
+
+    // if no pins, create new array; otherwise add to current array of MapPins
+    if (data["pins"] == null) {
+      data["pins"] = [pin]
+    } else {
+      data["pins"].push(pin)
+    }
+
+    // re-write file
+    vault.adapter.write(this.file.path, JSON.stringify(data))
+  }
+
+  async loadImage(file: TFile) {
+    const fragment = this
   }
 
   async onOpen() {

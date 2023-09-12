@@ -1,24 +1,11 @@
-import { App, Menu, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian'
+import { App, HoverPopover, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, ToggleComponent } from 'obsidian'
 import { MapView, VIEW_TYPE_MAP } from 'src/view/view'
+import { MapViewProps, MapPinProps } from "src/main/intf"
 
 // Remember to rename these classes and interfaces!
 
 interface MFSSettings {
 	mySetting: string
-}
-
-// interfaces for map stuff
-interface MFSDoc {
-	name: string,
-	path: string,
-	mapPins?: Array<MapPin>,
-	filePins?: Array<string>
-}
-
-interface MapPin {
-	name: string,
-	directory: string,
-	path: string
 }
 
 const DEFAULT_SETTINGS: MFSSettings = {
@@ -70,6 +57,21 @@ export default class MFS extends Plugin {
 					})
 			)
 
+			menu.addItem((item) => 
+				item
+					.setTitle("Place Pin")
+					.setIcon("pin")
+					.onClick(() => {
+						let mapView = this.app.workspace.getActiveViewOfType(MapView)
+						if (mapView == null) {
+							new Notice("You need to be looking at a map to add a pin!")
+						} else {
+							new MFSPinGenModal(this.app, mapView).open()
+						}
+					})
+				
+			)
+
 			menu.showAtMouseEvent(event)
 		})
 
@@ -83,14 +85,14 @@ export default class MFS extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt)
+			// console.log(evt.clientX, evt.clientY, evt)
 		})
-
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000))
 	}
 
 	onunload() {
+		close()
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_MAP)
 	}
 
@@ -106,15 +108,16 @@ export default class MFS extends Plugin {
 // if these classes get too large, bring to another file
 // Modal for adding .mfs document
 class MFSDocGenModal extends Modal {
-	mapMetaData: MFSDoc = {name: "", path: ""}
+	mapMetaData: MapViewProps = {name: "", path: "", pins: []}
 
 	constructor(app: App) {
 		super(app)
 	}
 
-	// creates a doc when the user clicks Submit button
-	async onSubmit(mapMetaData: MFSDoc) {
-		let file = await this.app.vault.create(mapMetaData.name + '.mfs', JSON.stringify(mapMetaData))
+	// creates a doc when the user clicks submit button
+	async onSubmit() {
+		await this.app.vault.create(this.mapMetaData.name + '.mfs', 
+								  	JSON.stringify(this.mapMetaData))
 	}
 
 	onOpen() {
@@ -122,6 +125,7 @@ class MFSDocGenModal extends Modal {
 
 		contentEl.createEl("h1", { text: "Create your .mfs file!" });
 
+		// map name entry
 		new Setting(contentEl)
 		.setName("Map Name")
 		.addText((text) =>
@@ -129,6 +133,7 @@ class MFSDocGenModal extends Modal {
 				this.mapMetaData.name = value
 			}));
 
+		// map image path entry
 		new Setting(contentEl)
 		.setName("Map Path")
 		.addText((text) =>
@@ -136,6 +141,7 @@ class MFSDocGenModal extends Modal {
 				this.mapMetaData.path = value
 			}));
 
+		// submit button + action (see onSubmit)
 		new Setting(contentEl)
 		.addButton((btn) =>
 			btn
@@ -143,7 +149,7 @@ class MFSDocGenModal extends Modal {
 			.setCta()
 			.onClick(() => {
 				this.close();
-				this.onSubmit(this.mapMetaData)
+				this.onSubmit()
 			}));
 	}
 
@@ -151,6 +157,100 @@ class MFSDocGenModal extends Modal {
 		const {contentEl} = this
 		contentEl.empty()
 	}
+}
+
+// Modal for adding a new pin to the MapView
+class MFSPinGenModal extends Modal {
+	mapView: MapView
+	pinMetaData: MapPinProps = {name: "", path: "", coord: {x: 0, y: 0}}
+	isDirectory: boolean
+
+	constructor(app: App, mapView: MapView) {
+		super(app)
+		this.mapView = mapView
+	}
+
+	onSubmit() {
+		if (this.isDirectory) {
+			// create the new folder name
+			let currentFileParent = this.app.workspace.getActiveFile()?.parent?.name
+			let newFolderName = currentFileParent + '/' + this.pinMetaData.name
+			this.app.vault.createFolder(newFolderName)
+			
+			// create the associated .mfs doc
+			// TODO: add a blank map file 
+			this.app.vault.create(newFolderName + '/' + this.pinMetaData.name + '.mfs', 
+								  JSON.stringify({name: this.pinMetaData.name, 
+												  path: this.pinMetaData.path,
+												  mapPins: []}))
+									
+			// use @n8atnite hack here to copy assets/sample_map.png 
+			// this.app.vault.copy()						
+			
+		} else {
+			// if not a new map, just create a new map
+			this.app.vault.create(this.pinMetaData.name + '.md', "")
+		}
+
+		new Notice("Click on your map to place your new pin")
+
+		// creates a new event that triggers once when the map is clicked
+		this.mapView.contentEl.onClickEvent((evt: MouseEvent) => {
+			let pin = {name: this.pinMetaData.name, 
+					   path: this.pinMetaData.path,
+					   coord: {x: evt.clientX, y: evt.clientY}}
+
+			// displays the pin in the MapView
+			this.mapView.displayPin(pin)
+			
+			// records the pin in the MapView
+			this.mapView.savePin(pin)
+			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
+		}, {once : true})
+	}
+
+	onOpen() {
+		const {contentEl} = this
+
+		contentEl.createEl("h1", { text: "Add a pin to your map" });
+
+		// entry for pin name
+		new Setting(contentEl)
+		.setName("Pin Name")
+		.addText((text) =>
+			text.onChange((value) => {
+				this.pinMetaData.name = value
+			}))
+
+		// entry for pin data path (file if just regular pin, map path if map)
+		new Setting(contentEl)
+		.setName("Pin Path")
+		.addText((text) => 
+			text.onChange((value) => {
+				this.pinMetaData.path = value
+			}))
+
+		// toggle for whether or not this will be a new map
+		new Setting(contentEl)
+		.setName("New Map?")
+		.addToggle((tc: ToggleComponent) => {
+			tc.onChange((enabled:boolean) => {
+				this.isDirectory = enabled
+			})
+		})
+
+		// submit button + actions to take when submitted
+		new Setting(contentEl)
+		.addButton((btn) =>
+			btn
+			.setButtonText("Submit")
+			.setCta()
+			.onClick(() => {
+				this.close();
+				this.onSubmit()
+			}));
+	}
+
 }
 
 // settings tab for the plugin

@@ -8,14 +8,13 @@ If your plugin does not need CSS, delete this file.
 */
 
 .map-view {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden
+    background-color: #e9973f;
+    overflow: auto;
 }
-.map-view img {
-    flex-shrink: 0;
-    /* object-fit: cover; */
-    min-width: 100%;
-    min-height: 100%
+
+.pin {
+    background-color: #aa0def;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
 }
