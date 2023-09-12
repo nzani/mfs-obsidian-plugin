@@ -1,6 +1,6 @@
 import { App, HoverPopover, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, ToggleComponent } from 'obsidian'
 import { MapView, VIEW_TYPE_MAP } from 'src/view/view'
-import { MFSDoc, MapPin } from "src/main/intf"
+import { MapViewProps, MapPin } from "src/main/intf"
 
 // Remember to rename these classes and interfaces!
 
@@ -108,7 +108,7 @@ export default class MFS extends Plugin {
 // if these classes get too large, bring to another file
 // Modal for adding .mfs document
 class MFSDocGenModal extends Modal {
-	mapMetaData: MFSDoc = {name: "", path: "", mapPins: []}
+	mapMetaData: MapViewProps = {name: "", path: "", pins: []}
 
 	constructor(app: App) {
 		super(app)
@@ -204,7 +204,7 @@ class MFSPinGenModal extends Modal {
 			this.mapView.displayPin(pin)
 			
 			// records the pin in the MapView
-			this.mapView.rememberPin(pin)
+			this.mapView.savePin(pin)
 			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
 		}, {once : true})
 	}

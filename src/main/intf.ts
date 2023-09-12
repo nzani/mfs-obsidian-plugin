@@ -7,11 +7,11 @@ export interface MapCoordinate {
 }
 
 export interface MapPin {
-	id: number
+	id?: number
 	name: string,
 	path: string,
 	coord: MapCoordinate,
-	content: MapViewProps | null
+	content?: MapViewProps
 }
 
 export interface MapViewProps {
