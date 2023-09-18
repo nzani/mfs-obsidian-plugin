@@ -4,13 +4,11 @@ import * as ReactDOM from "react-dom"
 import { Root, createRoot } from "react-dom/client"
 import { MapViewProps, MapPinProps } from "src/main/intf"
 import MapComponent from "src/view/ReactView"
-import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch"
 
 export const VIEW_TYPE_MAP = "map-view"
 
 export class MapView extends FileView {
 
-  // TODO: change to proper interface (MFSDoc)
   mapFileData: MapViewProps = {path: "", name: "", pins: []}
   root: Root
 
@@ -54,7 +52,7 @@ export class MapView extends FileView {
     return "Map View"
   }
 
-  // add the pin to the list of pins in the .mfs doc
+  // add the pin to the list of pins
   async savePin(pin: MapPinProps) {
     // get the current vault and data
     let vault = this.app.vault
@@ -83,14 +81,4 @@ export class MapView extends FileView {
     ReactDOM.unmountComponentAtNode(this.containerEl.children[1])
     this.root.unmount()
   }
-}
-
-const MapInteractiveView = (props: any) => {
-  return (
-    <TransformWrapper centerOnInit>
-      <TransformComponent wrapperStyle={{width: '100%', height: '100%'}}>
-        <img src={props.path} alt={props.name}/>
-      </TransformComponent>
-    </TransformWrapper>
-  )
 }

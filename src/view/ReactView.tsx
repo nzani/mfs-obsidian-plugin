@@ -15,18 +15,16 @@ const MapComponent = (mapProps: MapViewProps) => {
   const removePin = async (pin: MapPinProps) => {setPins(pins.filter(p => p.id !== pin.id))}
 
   return (
-    <TransformWrapper>
-      <TransformComponent>
-        <div id="map-image-container">
-          <img 
-            id="map-image"
-            src={path}
-            alt={name}
-          />
-          <KeepScale>
-            {PinListView(pins)}
-          </KeepScale>
-        </div>
+    <TransformWrapper centerOnInit>
+      <TransformComponent wrapperStyle={{width: '100%', height: '100%'}}>
+        <img 
+          id="map-image"
+          src={path}
+          alt={name}
+        />
+        <KeepScale>
+          {PinListView(pins)}
+        </KeepScale>
       </TransformComponent>
     </TransformWrapper>
   )
@@ -36,7 +34,7 @@ const MapComponent = (mapProps: MapViewProps) => {
 const PinListView = (pins: MapPinProps[]) => {
   return (
     <>
-      {pins.map((pin: MapPinProps, idx: number) => {
+      {pins?.map((pin: MapPinProps, idx: number) => {
           return (<MapPinIcon className="pin" key={idx} style={{top: pin.coord.y, left: pin.coord.x}}/>)
         })}
     </>

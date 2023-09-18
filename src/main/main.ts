@@ -201,10 +201,13 @@ class MFSPinGenModal extends Modal {
 					   coord: {x: evt.clientX, y: evt.clientY}}
 
 			// displays the pin in the MapView
-			this.mapView.displayPin(pin)
+			// this.mapView.displayPin(pin)
 			
 			// records the pin in the MapView
-			this.mapView.savePin(pin)
+			// this.mapView.savePin(pin)
+
+			// TODO: notify MapComponent of new pin with addPin callback
+
 			new Notice("Pin created at " + String(evt.clientX) + ", " + String(evt.clientY))
 		}, {once : true})
 	}
