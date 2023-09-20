@@ -41,4 +41,24 @@ const PinListView = (pins: MapPinProps[]) => {
   )
 }
 
+const DraggableComponent = (bounded: boolean = true) => {
+  // bounded: draggable only within parent element (false = draggable across window)
+  const [position, setPosition] = useState({x: 0, y: 0});
+
+  return (
+    <div 
+      onPointerMove={e => {
+        setPosition({
+          x: e.clientX,
+          y: e.clientY
+        });
+      }}
+      style={{
+        position: 'relative',
+        width: bounded ? '100%': '100vw',
+        height: bounded ? '100%': '100vh',
+      }}/>
+  )
+}
+
 export default MapComponent;
