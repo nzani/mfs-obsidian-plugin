@@ -1,8 +1,9 @@
-import { FileView, WorkspaceLeaf, TFile, ButtonComponent } from "obsidian"
+import { App, FileView, WorkspaceLeaf, TFile, ButtonComponent } from "obsidian"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { Root, createRoot } from "react-dom/client"
 import { MapViewProps, MapPinProps } from "src/main/intf"
+import { AppContext } from "src/main/context"
 import MapComponent from "src/view/ReactView"
 
 export const VIEW_TYPE_MAP = "map-view"
@@ -39,7 +40,9 @@ export class MapView extends FileView {
     // create React element after file loaded
     this.root.render(
       <React.StrictMode>
+        <AppContext.Provider value={this.app}>
         <MapComponent name={this.mapFileData.name} path={mapAbsPath} pins={this.mapFileData.pins}/>
+        </AppContext.Provider>
       </React.StrictMode>
     )
   }

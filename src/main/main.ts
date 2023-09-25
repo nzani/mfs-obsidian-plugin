@@ -1,6 +1,6 @@
 import { App, HoverPopover, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, ToggleComponent } from 'obsidian'
 import { MapView, VIEW_TYPE_MAP } from 'src/view/view'
-import { MapViewProps, MapPinProps } from "src/main/intf"
+import { MapViewProps, MapPinProps } from 'src/main/intf'
 
 // Remember to rename these classes and interfaces!
 
